@@ -17,7 +17,7 @@ datatype Point = PointCtor(x:int, y:int)
 /*{*/
 ghost function subtractPoints(tip:Point, tail:Point) : Point
 {
-  PointCtor(tip.x - tail.x, tip.y - tail.x)
+  PointCtor(tip.x - tail.x, tip.y - tail.y)
 }
 /*}*/
 

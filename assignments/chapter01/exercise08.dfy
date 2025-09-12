@@ -13,5 +13,5 @@ lemma ExperimentsWithSequences()
   assert fibo[..3] == [1,1,2];
   assert fibo[7..] == [21,34];
 
-  assert fibo[5..6] == /*{*/8/*}*/;
+  assert fibo[5..6] == /*{*/[8]/*}*/;
 }

@@ -11,5 +11,5 @@ lemma ExperimentsWithSequences()
   assert |fibo| == 9;
   assert fibo[0] == 1;
   assert fibo[8] == 34;
-  assert fibo[/*{*/9/*}*/] == 21;
+  assert fibo[/*{*/7/*}*/] == 21;
 }

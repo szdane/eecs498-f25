@@ -13,10 +13,10 @@ lemma ExperimentsWithSequences()
   // You can, of course, have a seq of other stuff.
   var seqOfSets:seq<set<int>> := [{0}, {0,1}, {0,1,2}];
 
-  var whatsMyProblem := [0, /*{*/1, false/*}*/];
+  var whatsMyProblem := [0, /*{*/ 3, 1/*}*/];
 
   // |expr| below is sequence-length
   assert |seqOfSets| == 3;
   // Type checking means the |expr| below is a set-cardinality operator.
-  assert |seqOfSets[1]| == /*{*/3/*}*/;
+  assert |seqOfSets[1]| == /*{*/2/*}*/;
 }

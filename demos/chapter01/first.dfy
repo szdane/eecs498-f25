@@ -1,4 +1,4 @@
-lemma MyFirstLemma(x: int)
+lemma MyFirstLemma(x: nat)
 {
-  assert x >= 1;
+  assert x >= 0;
 }

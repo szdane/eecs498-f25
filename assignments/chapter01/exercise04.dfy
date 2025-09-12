@@ -26,6 +26,7 @@ lemma TheseTwoPredicatesAreEquivalent(x:int, y:int)
 // Keep it as simple as possible (e.g. avoid named predicates).
 lemma FourTimesIsPrettyBig(x:int)
 /*{*/
+  requires AtLeastTwiceAsBigFunction(Double(Double(x)), x)
 /*}*/
 {
   assert AtLeastTwiceAsBigPredicate(Double(Double(x)), x);
