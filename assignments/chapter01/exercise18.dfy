@@ -10,9 +10,9 @@ method FindMax(intSeq:seq<int>) returns (maxIndex:nat)
     maxIndex := 0;
     while(count < |intSeq|)
     /*{*/
-        invariant true  // hint: you'll need three invariants
-        invariant true
-        invariant true
+        invariant 0<=count<=|intSeq|  // hint: you'll need three invariants
+        invariant 0<=maxIndex<|intSeq|
+        invariant forall i:nat | i <count :: intSeq[i] <= intSeq[maxIndex]
     /*}*/
     {
         if(intSeq[maxIndex] < intSeq[count]) {

@@ -4,7 +4,11 @@
 ghost function fibo(val:nat) : nat
 {
 /*{*/
-  0
+  match val {
+    case 0 => 0
+    case 1 => 1
+    case _ => fibo(val-1) + fibo(val-2)
+  }
 /*}*/
 }
 

@@ -49,8 +49,8 @@ lemma CheeseTakeTwo()
     // But how? What's missing is that Dafny needs a "witness" to the
     // there-exists. We need to show an expression that satisfies the
     // body of the exists. Try uncommenting these lines:
-    /*{*/ var o3 := Sandwich(Ham, o1.cheese);/*}*/   
-    /*{*/ assert o3.Sandwich? && o1.cheese == o3.cheese;/*}*/    
+    /*{*//*}*/    var o3 := Sandwich(Ham, o1.cheese);
+    /*{*//*}*/    assert o3.Sandwich? && o1.cheese == o3.cheese;
     // Simply *mentioning* an Order that satisfies the predicate
     // on o2 above is enough for Dafny to see the proof; once we mention
     // it, Dafny will try plugging it into the expression. Try removing

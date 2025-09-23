@@ -18,7 +18,7 @@ function
 {
   if limit == 1 then false else
   /*{*/
-    true // replace this with an appropriate definition
+    if n % limit == 0 then true else HasDivisorBelow(n, limit - 1)
   /*}*/
 }
 
@@ -36,10 +36,14 @@ function
 lemma HasDivisorBelow_ok(n: nat, limit: nat)
   requires 1 <= limit
   /*{*/
-  ensures true // replace this with an appropriate postcondition
+  ensures HasDivisorBelow(n, limit) == (exists d: nat :: 1 < d <= limit && n % d == 0)
   /*}*/
 {
   /*{*/
+  if limit == 1 {
+    return;
+  }
+  HasDivisorBelow_ok(n, limit - 1);
   /*}*/
 }
 

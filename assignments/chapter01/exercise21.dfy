@@ -12,7 +12,7 @@ import opened UtilitiesLibrary
 
 /*{*/
 // you should define your Tree datatype here.
-datatype Tree = Tree
+datatype Tree = Node(value:int, left:Tree, right:Tree) | Nil
 /*}*/
 
 // This lemma is here to guide you in defining the tree in a way
@@ -32,8 +32,11 @@ lemma DatatypeCheck()
 
 ghost function TreeAsSequence(tree:Tree) : seq<int>
 {
-/*{*/    
-    [] // Replace me
+/*{*/  
+    match tree{
+      case Nil => []
+      case Node(value, left, right) => TreeAsSequence(left) + [value] + TreeAsSequence(right)
+    }  
 /*}*/
 }
 
@@ -49,7 +52,15 @@ ghost predicate SequencesOrderedAtInterface(seq1:seq<int>, seq2:seq<int>)
 // Write a recursive definition for what it means for a Tree to be sorted
 ghost predicate IsSortedTree(tree:Tree) {
 /*{*/
-    true // Replace me
+    match tree {
+      case Nil => true
+      case Node(value, Nil, Nil) => true
+      case Node(value, left, right) =>
+        IsSortedTree(left) &&
+        IsSortedTree(right) &&
+        SequencesOrderedAtInterface(TreeAsSequence(left), [value]) &&
+        SequencesOrderedAtInterface([value], TreeAsSequence(right))
+    }
 /*}*/
 }
 
@@ -65,11 +76,52 @@ datatype TreeSortedness = Unsorted | Empty | Bounded(low: int, high: int)
 method CheckIfSortedTree(tree:Tree) returns (out: TreeSortedness)
     ensures IsSortedTree(tree) <==> !out.Unsorted?
   /*{*/
+    ensures tree == Nil <==> out == Empty
+    ensures IsSortedTree(tree) && tree != Nil <==> 
+            exists low:int, high:int :: out == Bounded(low, high) &&
+            low <= high &&
+            low == TreeAsSequence(tree)[0] &&
+            high == Last(TreeAsSequence(tree))
   /*}*/
 {
   /*{*/
-  return Unsorted;
-  // Implement this method. Feel free to make this a recursive method.
+  if tree == Nil{
+    return Empty;
+  }
+  var leftSorted := CheckIfSortedTree(tree.left);
+  var rightSorted := CheckIfSortedTree(tree.right);
+  if leftSorted.Unsorted? || rightSorted.Unsorted?{
+    return Unsorted;
+  }
+  if leftSorted == Empty && rightSorted == Empty{
+    return Bounded(tree.value, tree.value);
+  }
+  if leftSorted == Empty{
+    var Bounded(rLow, rHigh) := rightSorted;
+    if tree.value <= rLow{
+      return Bounded(tree.value, rHigh);
+    } else {
+      return Unsorted;
+    }
+  }
+  if rightSorted == Empty{
+    var Bounded(lLow, lHigh) := leftSorted;
+    if lHigh <= tree.value{
+      return Bounded(lLow, tree.value);
+    } else {
+      return Unsorted;
+    }
+  }
+  else {
+    var Bounded(lLow, lHigh) := leftSorted;
+    var Bounded(rLow, rHigh) := rightSorted;
+    if lHigh <= tree.value && tree.value <= rLow{
+      return Bounded(lLow, rHigh);
+    } else {
+      return Unsorted;
+    }
+  }
+  return Empty;
   /*}*/
 }
 

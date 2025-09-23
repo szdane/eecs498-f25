@@ -15,10 +15,27 @@ ghost predicate IsSorted(seqint:seq<int>) {
 method BinarySearch(haystack:seq<int>, needle:int) returns (index:nat)
     requires IsSorted(haystack)
 /*{*/
+    ensures index <= |haystack|
+    ensures forall i:nat | i <index :: haystack[i] < needle
+    ensures forall i:nat | index <= i <|haystack| :: haystack[i] >= needle
 /*}*/
 {
 /*{*/
-    return 0;  // Replace me with an implementation.
+    var low:nat := 0;
+    var high:nat := |haystack|;
+    while (low < high)
+        invariant 0 <= low <= high <= |haystack|
+        invariant forall i:nat | i< low :: haystack[i] < needle
+        invariant forall i:nat | high <= i<|haystack| :: haystack[i] >= needle
+    {
+        var mid:nat := (low + high) / 2;
+        if (haystack[mid] < needle) {
+            low := mid + 1;
+        } else {
+            high := mid;
+        }
+    }
+    index := low;
 /*}*/
 }
 
