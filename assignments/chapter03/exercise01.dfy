@@ -12,20 +12,22 @@ datatype Variables = Variables(numCokes:int)
 
 ghost predicate Init(c:Constants, v:Variables) {
 /*{*/
-  true // Replace me
+  && v.numCokes == 0
+  && c.capacity == 7
 /*}*/
 }
 
 ghost predicate Purchase(c:Constants, v:Variables, v':Variables) {
 /*{*/
-  true // Replace me
+  && if v.numCokes > 0 then v' == v.(numCokes := v.numCokes - 1) else v' == v 
 /*}*/
 }
 
 ghost predicate Restock(c:Constants, v:Variables, v':Variables, numRestock:int)
 {
 /*{*/
-  true // Replace me
+  && numRestock >= 0
+  && if v.numCokes + numRestock <= c.capacity then v' == v.(numCokes := v.numCokes + numRestock) else v' == v
 /*}*/
 }
 

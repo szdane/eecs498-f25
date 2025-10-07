@@ -26,7 +26,11 @@ datatype Constants = Constants(tableSize:nat)
 /*}*/
 // Define all the relevant state in this datatype.
 /*{*/
-datatype Variables = Variables()
+datatype Philosopher = Philosopher(
+  hasLeftChopstick: bool,
+  hasRightChopstick: bool
+)
+datatype Variables = Variables(philosophers: seq<Philosopher>)
 {
   ghost predicate WellFormed(c: Constants) {
     && c.WellFormed()
@@ -36,7 +40,11 @@ datatype Variables = Variables()
 
 ghost predicate Init(c:Constants, v:Variables) {
 /*{*/
-  true  // Replace me
+  v.WellFormed(c)
+  && |v.philosophers| == c.tableSize
+  && forall i | 0 <= i < c.tableSize :: 
+      && !v.philosophers[i].hasLeftChopstick
+      && !v.philosophers[i].hasRightChopstick
 /*}*/
 }
 
@@ -46,33 +54,53 @@ ghost predicate Init(c:Constants, v:Variables) {
 // Philosopher with index philosopherIndex acquires left chopstick
 ghost predicate AcquireLeft(c:Constants, v:Variables, v':Variables, philosopherIndex:nat) {
 /*{*/
-  true  // Replace me
+  && philosopherIndex < c.tableSize
+  && v.WellFormed(c)
+  && v'.WellFormed(c)
+  && philosopherIndex < |v.philosophers|
+  && v.philosophers[philosopherIndex].hasLeftChopstick == false
+  && v' == v.(philosophers := v.philosophers[philosopherIndex := v.philosophers[philosopherIndex].(hasLeftChopstick := true)])
 /*}*/
 }
 
 // Philosopher with index philosopherIndex acquires right chopstick
 ghost predicate AcquireRight(c:Constants, v:Variables, v':Variables, philosopherIndex:nat) {
 /*{*/
-  true  // Replace me
+  && philosopherIndex < c.tableSize
+  && v.WellFormed(c)
+  && v'.WellFormed(c)
+  && philosopherIndex < |v.philosophers|
+  && v.philosophers[philosopherIndex].hasRightChopstick == false
+  && v' == v.(philosophers := v.philosophers[philosopherIndex := v.philosophers[philosopherIndex].(hasRightChopstick := true)])
 /*}*/
 }
 
 // Philosopher with index philosopherIndex releases both chopsticks
 ghost predicate ReleaseBoth(c:Constants, v:Variables, v':Variables, philosopherIndex:nat) {
 /*{*/
-  true  // Replace me
+  && philosopherIndex < c.tableSize
+  && v.WellFormed(c)
+  && v'.WellFormed(c)
+  && philosopherIndex < |v.philosophers|
+  && v.philosophers[philosopherIndex].hasLeftChopstick == true
+  && v.philosophers[philosopherIndex].hasRightChopstick == true
+  && v' == v.(philosophers := v.philosophers[philosopherIndex := Philosopher(false, false)])
 /*}*/
 }
 
 datatype Step =
 /*{*/
-  Step()  // Replace me
+  | AcquireLeftStep(philosopherIndex: nat)
+  | AcquireRightStep(philosopherIndex: nat)
+  | ReleaseBothStep(philosopherIndex: nat)
 /*}*/
 
 ghost predicate NextStep(c:Constants, v:Variables, v':Variables, step: Step) {
   match step
 /*{*/
-  case Step => false  // Replace me
+  case AcquireLeftStep(philosopherIndex) => AcquireLeft(c, v, v', philosopherIndex)
+  case AcquireRightStep(philosopherIndex) => AcquireRight(c, v, v', philosopherIndex)
+  case ReleaseBothStep(philosopherIndex) => ReleaseBoth(c, v, v', philosopherIndex)
 /*}*/
 }
 
@@ -88,7 +116,9 @@ ghost predicate NoSticksAcquired(c:Constants, v: Variables)
   requires v.WellFormed(c)
 {
 /*{*/
-  true
+  forall i | 0 <= i < |v.philosophers|::
+    && !v.philosophers[i].hasLeftChopstick
+    && !v.philosophers[i].hasRightChopstick
 /*}*/
 }
 
@@ -101,7 +131,9 @@ ghost predicate BothSticksAcquired(c:Constants, v: Variables, philosopherIndex: 
   requires v.WellFormed(c)
 {
 /*{*/
-  true
+  philosopherIndex < |v.philosophers| &&
+  v.philosophers[philosopherIndex].hasLeftChopstick &&
+  v.philosophers[philosopherIndex].hasRightChopstick
 /*}*/
 }
 
@@ -128,5 +160,19 @@ lemma PseudoLiveness(c:Constants, philosopherIndex:nat) returns (behavior:seq<Va
     ensures BothSticksAcquired(c, behavior[|behavior|-1], philosopherIndex)  // Behavior ultimately achieves acquisition for philosopherIndex
 {
 /*{*/
+  var v0 := Variables([Philosopher(false, false), Philosopher(false, false), Philosopher(false, false)]);
+  var v1 := Variables([Philosopher(false, false), Philosopher(true, false), Philosopher(false, false)]);
+  var v2 := Variables([Philosopher(false, false), Philosopher(true, true), Philosopher(false, false)]);
+  behavior := [v0, v1, v2];
+  assert behavior[|behavior|-1].philosophers[philosopherIndex].hasLeftChopstick;
+  assert behavior[|behavior|-1].philosophers[philosopherIndex].hasRightChopstick;
+  assert Init(c, behavior[0]);
+  assert AcquireLeft(c, behavior[0], behavior[1], philosopherIndex);
+  assert AcquireRight(c, behavior[1], behavior[2], philosopherIndex);
+  assert NextStep(c, behavior[0], behavior[1], AcquireLeftStep(philosopherIndex));
+  assert NextStep(c, behavior[1], behavior[2], AcquireRightStep(philosopherIndex));
+  var step2 := AcquireRightStep(philosopherIndex);
+  assert Next(c, behavior[0], behavior[1]);
+  assert BothSticksAcquired(c, behavior[|behavior|-1], philosopherIndex);
 /*}*/
 }

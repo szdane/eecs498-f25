@@ -25,23 +25,67 @@
 
 datatype Variables = Variables(
 /*{*/    
+    x:int, 
+    y:int,
+    isGoingUp:bool,
+    isGoingRight:bool
 /*}*/
 )
 
 ghost predicate Init(v: Variables) {
 /*{*/    
-    true // Replace me
+    && v.x == 5
+    && v.y == 5
+    && v.isGoingUp
+    && v.isGoingRight
 /*}*/
 }
 
 // Define your actions here
 
-/*{*/    
+/*{*/   
+predicate MoveUp(v: Variables, v': Variables) {
+    && v.isGoingUp
+    && v' == v.(y := v.y+1)
+}
+
+predicate MoveDown(v: Variables, v': Variables) {
+    && !v.isGoingUp
+    && v' == v.(y := v.y-1)
+}
+
+predicate MoveRight(v: Variables, v': Variables) {
+    && v.isGoingRight
+    && v' == v.(x := v.x+1)
+}
+
+predicate MoveLeft(v: Variables, v': Variables) {
+    && !v.isGoingRight
+    && v' == v.(x := v.x-1)
+}
+
+predicate WarpVertical(v: Variables, v': Variables) {
+    && v'.x == v.x
+    && v'.y == -v.y
+    && v'.isGoingUp != v.isGoingUp
+    && v'.isGoingRight == v.isGoingRight
+}
+
+predicate WarpHorizontal(v: Variables, v': Variables) {
+    && v'.x == -v.x
+    && v'.y == v.y
+    && v'.isGoingUp == v.isGoingUp
+    && v'.isGoingRight != v.isGoingRight
+}
+
 /*}*/
 
 ghost predicate Next(v: Variables, v': Variables) {
 /*{*/    
-    true // Replace me
+    || MoveUp(v, v')
+    || MoveDown(v, v')
+    || MoveRight(v, v')
+    || MoveLeft(v, v')
 /*}*/
 }
 
@@ -51,13 +95,14 @@ ghost predicate Next(v: Variables, v': Variables) {
 
 ghost predicate Safety(v: Variables) {
 /*{*/    
-    false // Replace me
+    && v.x*v.x + v.y*v.y > 25
 /*}*/
 }
 
 ghost predicate Inv(v: Variables) {
 /*{*/    
-    true // Probably not strong enough!
+    && ((v.x >= 5 && v.isGoingRight )|| (v.x <= -5 && !v.isGoingRight)) 
+    && ((v.y >= 5 && v.isGoingUp) || (v.y <= -5 && !v.isGoingUp))
 /*}*/    
 }
 

@@ -36,7 +36,7 @@ module Crawler {
 
   ghost predicate Inv(v:Variables) {
 /*{*/
-    true  // probably not strong enough. :v)
+    v.y >= -v.x + 5
 /*}*/
   }
 
